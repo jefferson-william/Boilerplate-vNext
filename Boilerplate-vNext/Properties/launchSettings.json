@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:17723/",
+      "applicationUrl": "http://localhost:5000/",
       "sslPort": 44369
     }
   },
@@ -17,7 +17,7 @@
     },
     "web": {
       "commandName": "web",
-      "commandLineArgs": "--server.urls http://*:17723",
+      "commandLineArgs": "--server.urls http://*:5000",
       "environmentVariables": {
         "Hosting:Environment": "Development"
       }

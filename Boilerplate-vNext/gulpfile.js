@@ -1,4 +1,4 @@
-/// <binding Clean='clean' BeforeBuild='build' AfterBuild='test' ProjectOpened='watch'/>
+/// <binding Clean='clean' ProjectOpened='watch' />
 // The above line of code enables Visual Studio to automatically start Gulp tasks at certain key moments. The 'clean'
 // task is run on solution clean, the 'build' task is run on solution build and the 'watch' task is run on opening the
 // solution. You can also edit the above using the Task Runner Explorer window in Visual Studio
@@ -32,7 +32,10 @@ var gulp = require('gulp'),
     typescript = require('gulp-typescript'),    // TypeScript compiler (https://www.npmjs.com/package/gulp-typescript/)
     config = require('./config.json'),          // Read the config.json file into the config variable.
     hosting = require('./hosting.json'),        // Read the hosting.json file into the hosting variable.
-    project = require('./project.json');        // Read the project.json file into the project variable.
+    project = require('./project.json'),        // Read the project.json file into the project variable.
+    sequence = require('gulp-sequence'),
+    jscs = require('gulp-jscs'),
+    $ = require('gulp-load-plugins');
 
 // Holds information about the hosting environment.
 var environment = {
@@ -108,18 +111,52 @@ var sources = {
     css: [
         {
             // name - The name of the final CSS file to build.
-            name: 'font-awesome.css',
-            // copy - Just copy the file and don't run it through the minification pipeline.
-            copy: true,
-            // paths - The path to the file to copy.
-            paths: paths.bower + 'font-awesome/css/font-awesome.min.css'
-        },
-        {
-            name: 'site.css',
+            name: "angular-material.css",
             // paths - An array of paths to CSS or SASS files which will be compiled to CSS, concatenated and minified
             // to create a file with the above file name.
             paths: [
-                paths.styles + 'site.scss'
+                paths.bower + "angular-material-sass-files/components/_autocomplete.scss",
+                paths.bower + "angular-material-sass-files/components/_backdrop.scss",
+                paths.bower + "angular-material-sass-files/components/_bottom-sheet.scss",
+                paths.bower + "angular-material-sass-files/components/_button.scss",
+                paths.bower + "angular-material-sass-files/components/_card.scss",
+                paths.bower + "angular-material-sass-files/components/_checkbox.scss",
+                paths.bower + "angular-material-sass-files/components/_chips.scss",
+                paths.bower + "angular-material-sass-files/components/_content.scss",
+                paths.bower + "angular-material-sass-files/components/_calendar.scss",
+                paths.bower + "angular-material-sass-files/components/_datepicker.scss",
+                paths.bower + "angular-material-sass-files/components/_dialog.scss",
+                paths.bower + "angular-material-sass-files/components/_divider.scss",
+                paths.bower + "angular-material-sass-files/components/_fabSpeedDial.scss",
+                paths.bower + "angular-material-sass-files/components/_fabToolbar.scss",
+                paths.bower + "angular-material-sass-files/components/_grid-list.scss",
+                paths.bower + "angular-material-sass-files/components/_icon.scss",
+                paths.bower + "angular-material-sass-files/components/_input.scss",
+                paths.bower + "angular-material-sass-files/components/_list.scss",
+                paths.bower + "angular-material-sass-files/components/_menu.scss",
+                paths.bower + "angular-material-sass-files/components/_menu-bar.scss",
+                paths.bower + "angular-material-sass-files/components/_progress-circular.scss",
+                paths.bower + "angular-material-sass-files/components/_progress-linear.scss",
+                paths.bower + "angular-material-sass-files/components/_radio-button.scss",
+                paths.bower + "angular-material-sass-files/components/_select.scss",
+                paths.bower + "angular-material-sass-files/components/_sidenav.scss",
+                paths.bower + "angular-material-sass-files/components/_slider.scss",
+                paths.bower + "angular-material-sass-files/components/_sticky.scss",
+                paths.bower + "angular-material-sass-files/components/_subheader.scss",
+                paths.bower + "angular-material-sass-files/components/_switch.scss",
+                paths.bower + "angular-material-sass-files/components/_tabs.scss",
+                paths.bower + "angular-material-sass-files/components/_toast.scss",
+                paths.bower + "angular-material-sass-files/components/_toolbar.scss",
+                paths.bower + "angular-material-sass-files/components/_tooltip.scss",
+                paths.bower + "angular-material-sass-files/components/_virtual-repeater.scss",
+                paths.bower + "angular-material-sass-files/components/_whiteframe.scss",
+                paths.bower + "angular-material-sass-files/components/_layout.scss"
+            ]
+        },
+        {
+            name: "site.css",
+            paths: [
+                paths.styles + "site.scss"
             ]
         }
     ],
@@ -127,56 +164,101 @@ var sources = {
     fonts: [
         {
             // The name of the folder the fonts will be output to.
-            name: 'bootstrap',
+            name: "Roboto",
             // The source directory to get the font files from. Note that we support all font file types.
-            path: paths.bower + 'bootstrap-sass/**/*.{ttf,svg,woff,woff2,otf,eot}'
+            path: paths.fonts + "*.{ttf,svg,woff,woff2,otf,eot}"
         },
         {
-            name: 'font-awesome',
-            path: paths.bower + 'font-awesome/**/*.{ttf,svg,woff,woff2,otf,eot}'
+            // The name of the folder the fonts will be output to.
+            name: "bootstrap",
+            // The source directory to get the font files from. Note that we support all font file types.
+            path: paths.bower + "bootstrap-sass/**/*.{ttf,svg,woff,woff2,otf,eot}"
+        },
+        {
+            name: "font-awesome",
+            path: paths.bower + "font-awesome/**/*.{ttf,svg,woff,woff2,otf,eot}"
         }
     ],
     // An array of paths to images to be optimized.
     img: [
-        paths.img + '**/*.{png,jpg,jpeg,gif,svg}'
+        paths.img + "**/*.{png,jpg,jpeg,gif,svg}"
+    ],
+    ts: [
+        {
+            name: "Bootstrap.js",
+            paths: [
+                paths.scripts + "Bootstrap.ts",
+            ]
+        }
     ],
     // An array containing objects required to build a single JavaScript file.
     js: [
         {
+            name: "angular.js",
+            paths: [
+                // Feel free to remove any parts of Angular Material you don't use.
+                paths.bower + "angular/angular.js",
+                paths.bower + "angular-animate/angular-animate.js",
+                paths.bower + "angular-aria/angular-aria.js",
+                paths.bower + "angular-messages/angular-messages.js",
+                paths.bower + "angular-material/angular-material.js",
+            ]
+        },
+        {
             // name - The name of the final JavaScript file to build.
-            name: 'bootstrap.js',
-            // copy - Just copy the file and don't run it through the minification pipeline.
-            copy: true,
+            name: "angular-material.js",
             // paths - A single or array of paths to JavaScript or TypeScript files which will be concatenated and
             // minified to create a file with the above file name.
-            paths: paths.bower + 'bootstrap-sass/assets/javascripts/bootstrap.min.js'
-        },
-        {
-            name: 'jquery.js',
-            copy: true,
-            paths: paths.bower + 'jquery/dist/jquery.min.js'
-        },
-        {
-            name: 'jquery-validate.js',
-            copy: true,
-            paths: paths.bower + 'jquery-validation/dist/jquery.validate.min.js'
-        },
-        {
-            name: 'jquery-validate-unobtrusive.js',
-            copy: true,
-            paths: paths.bower + 'jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js'
-        },
-        {
-            name: 'modernizr.js',
-            copy: true,
-            paths: paths.bower + 'modernizr/modernizr.js'
-        },
-        {
-            name: 'site.js',
             paths: [
-                paths.scripts + 'fallback/styles.js',
-                paths.scripts + 'fallback/scripts.js',
-                paths.scripts + 'site.js'
+                // Feel free to remove any parts of Angular Material you don"t use.
+                paths.bower + "material/src/components/autocomplete/autocomplete.js",
+                paths.bower + "material/src/components/backdrop/backdrop.js",
+                paths.bower + "material/src/components/bottomSheet/bottomSheet.js",
+                paths.bower + "material/src/components/button/button.js",
+                paths.bower + "material/src/components/card/card.js",
+                paths.bower + "material/src/components/checkbox/checkbox.js",
+                paths.bower + "material/src/components/chips/chips.js",
+                paths.bower + "material/src/components/content/content.js",
+                paths.bower + "material/src/components/datepicker/datepicker.js",
+                paths.bower + "material/src/components/dialog/dialog.js",
+                paths.bower + "material/src/components/divider/divider.js",
+                paths.bower + "material/src/components/fabActions/fabActions.js",
+                paths.bower + "material/src/components/fabSpeedDial/fabSpeedDial.js",
+                paths.bower + "material/src/components/fabToolbar/fabToolbar.js",
+                paths.bower + "material/src/components/fabTrigger/fabTrigger.js",
+                paths.bower + "material/src/components/gridList/gridList.js",
+                paths.bower + "material/src/components/icon/icon.js",
+                paths.bower + "material/src/components/input/input.js",
+                paths.bower + "material/src/components/list/list.js",
+                paths.bower + "material/src/components/menu/menu.js",
+                paths.bower + "material/src/components/menuBar/menuBar.js",
+                paths.bower + "material/src/components/progressCircular/progressCircular.js",
+                paths.bower + "material/src/components/progressLinear/progressLinear.js",
+                paths.bower + "material/src/components/radioButton/radioButton.js",
+                paths.bower + "material/src/components/select/select.js",
+                paths.bower + "material/src/components/showHide/showHide.js",
+                paths.bower + "material/src/components/sidenav/sidenav.js",
+                paths.bower + "material/src/components/slider/slider.js",
+                paths.bower + "material/src/components/sticky/sticky.js",
+                paths.bower + "material/src/components/subheader/subheader.js",
+                paths.bower + "material/src/components/swipe/swipe.js",
+                paths.bower + "material/src/components/switch/switch.js",
+                paths.bower + "material/src/components/tabs/tabs.js",
+                paths.bower + "material/src/components/toast/toast.js",
+                paths.bower + "material/src/components/toolbar/toolbar.js",
+                paths.bower + "material/src/components/tooltip/tooltip.js",
+                paths.bower + "material/src/components/virtualRepeat/virtualRepeat.js",
+                paths.bower + "material/src/components/whiteframe/whiteframe.js",
+            ]
+        },
+        {
+            name: "modernizr.js",
+            paths: paths.bower + "modernizr/modernizr.js"
+        },
+        {
+            name: "Site.js",
+            paths: [
+                paths.scripts + "Site.js"
             ]
         }
     ]
@@ -255,18 +337,29 @@ gulp.task('lint-css', function () {
 /*
  * Report warnings and errors in your JavaScript files (lint them) under the Scripts folder.
  */
-gulp.task('lint-js', function () {
-    return merge([                              // Combine multiple streams to one and return it so the task can be chained.
-        gulp.src(lintSources.js)                // Start with the source .js files.
-            .pipe(plumber())                    // Handle any errors.
-            .pipe(jshint())                     // Get any JavaScript linting errors.
-            .pipe(jshint.reporter('default', {  // Report any JavaScript linting errors to the console.
+gulp.task("lint-ts", function () {
+    return merge([                                                  // Combine multiple streams to one and return it so the task can be chained.
+        gulp.src(paths.scripts + "**/*.ts")                         // Start with the source .ts files.
+            .pipe(plumber())                                        // Handle any errors.
+            .pipe(tslint())                                         // Get any TypeScript linting errors.
+            .pipe(tslint.report("verbose")),                        // Report any TypeScript linting errors to the console.
+    ]);
+});
+gulp.task("lint-jscs", function () {
+    return merge([
+        gulp.src(paths.scripts + "**/*.js")                         // Start with the source .js files.
+            .pipe(plumber())                                        // Handle any errors.
+            .pipe(jscs()),                                           // Get and report any JavaScript style linting errors to the console.
+    ]);
+});
+gulp.task("lint-js", function () {
+    return merge([                                                  // Combine multiple streams to one and return it so the task can be chained.
+        gulp.src(paths.scripts + "**/*.js")                         // Start with the source .js files.
+            .pipe(plumber())                                        // Handle any errors.
+            .pipe(jshint())                                         // Get any JavaScript linting errors.
+            .pipe(jshint.reporter("default", {                      // Report any JavaScript linting errors to the console.
                 verbose: true
-            })),
-        gulp.src(lintSources.ts)                // Start with the source .ts files.
-            .pipe(plumber())                    // Handle any errors.
-            .pipe(tslint())                     // Get any TypeScript linting errors.
-            .pipe(tslint.report('verbose')),    // Report any TypeScript linting errors to the console.
+            }))
     ]);
 });
 
@@ -340,44 +433,35 @@ gulp.task('build-fonts', ['clean-fonts'], function () {
 /*
  * Builds the JavaScript files for the site.
  */
-gulp.task('build-js', [
-    'clean-js',
-    'lint-js'
-],
+gulp.task("build-js", sequence("clean-js", "compile-ts", "lint-js"));
+
+/*
+ * Compile js files
+ */
+gulp.task("compile-ts", [],
 function () {
-    var tasks = sources.js.map(function (source) {  // For each set of source files in the sources.
-        if (source.copy) {                          // If we are only copying files.
-            return gulp
-                .src(source.paths)                  // Start with the source paths.
-                .pipe(rename({                      // Rename the file to the source name.
-                    basename: source.name,
-                    extname: ''
-                }))
-                .pipe(gulp.dest(paths.js));         // Saves the JavaScript file to the specified destination path.
-        }
-        else {
-            return gulp                             // Return the stream.
-                .src(source.paths)                  // Start with the source paths.
-                .pipe(plumber())                    // Handle any errors.
-                .pipe(gulpif(
-                    environment.isDevelopment(),    // If running in the development environment.
-                    sourcemaps.init()))             // Set up the generation of .map source files for the JavaScript.
-                .pipe(gulpif(                       // If the file is a TypeScript (.ts) file.
-                    '**/*.ts',
-                    typescript(getTypeScriptProject(source)))) // Compile TypeScript (.ts) to JavaScript (.js) using the specified options.
-                .pipe(concat(source.name))          // Concatenate JavaScript files into a single file with the specified name.
-                .pipe(sizeBefore(source.name))      // Write the size of the file to the console before minification.
-                .pipe(gulpif(
-                    !environment.isDevelopment(),   // If running in the staging or production environment.
-                    uglify()))                      // Minifies the JavaScript.
-                .pipe(sizeAfter(source.name))       // Write the size of the file to the console after minification.
-                .pipe(gulpif(
-                    environment.isDevelopment(),    // If running in the development environment.
-                    sourcemaps.write('.')))         // Generates source .map files for the JavaScript.
-                .pipe(gulp.dest(paths.js));         // Saves the JavaScript file to the specified destination path.
-        }
+    var tasks = sources.ts.map(function (source) { // For each set of source files in the sources.
+        return gulp                             // Return the stream.
+            .src(source.paths)                  // Start with the source paths.
+            .pipe(plumber())                    // Handle any errors.
+            .pipe(gulpif(
+                environment.isDevelopment(),    // If running in the development environment.
+                sourcemaps.init()))             // Set up the generation of .map source files for the JavaScript.
+            .pipe(gulpif(                       // If the file is a TypeScript (.ts) file.
+                "**/*.ts",
+                typescript(getTypeScriptProject(source)))) // Compile TypeScript (.ts) to JavaScript (.js) using the specified options.
+            .pipe(concat(source.name))          // Concatenate JavaScript files into a single file with the specified name.
+            .pipe(sizeBefore(source.name))      // Write the size of the file to the console before minification.
+            .pipe(gulpif(
+                !environment.isDevelopment(),   // If running in the staging or production environment.
+                uglify()))                      // Minifies the JavaScript.
+            .pipe(sizeAfter(source.name))       // Write the size of the file to the console after minification.
+            .pipe(gulpif(
+                environment.isDevelopment(),    // If running in the development environment.
+                sourcemaps.write(".")))         // Generates source .map files for the JavaScript.
+            .pipe(gulp.dest(paths.js));         // Saves the JavaScript file to the specified destination path.
     });
-    return merge(tasks);                            // Combine multiple streams to one and return it so the task can be chained.
+    return merge(tasks);                        // Combine multiple streams to one and return it so the task can be chained.
 });
 
 /*

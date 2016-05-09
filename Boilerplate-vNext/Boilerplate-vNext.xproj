@@ -13,6 +13,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
+    <DevelopmentServerPort>59367</DevelopmentServerPort>
   </PropertyGroup>
   <ItemGroup>
     <DnxInvisibleFolder Include="bower_components\" />

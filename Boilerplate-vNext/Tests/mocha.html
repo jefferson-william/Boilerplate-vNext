@@ -19,32 +19,24 @@
 
     <!-- Mocha - The Mocha test runner script. -->
     <script src="../bower_components/mocha/mocha.js"></script>
-    <!-- Chai - An assertion library (http://chaijs.com/) used to make should/expect/assert statements. -->
-    <script src="../bower_components/chai/chai.js"></script>
-    <!-- Sinon - A stub/spy/mocking library (http://sinonjs.org/). -->
-    <script src="../bower_components/sinon/lib/sinon.js"></script>
 
     <!-- Dependencies - The dependencies of your system under test (SUT). -->
     <script src="../bower_components/jquery/dist/jquery.min.js"></script>
 
     <!-- System Under Test (SUT) - The code we want to test. -->
-    <script src="../Scripts/site.js"></script>
+    <script src="../Scripts/Site.js"></script>
 
     <script>
         // Setup Mocha - Determine how tests will run.
         mocha.setup({
             ui: "bdd",               // User-interface can be 'bdd', 'tdd' or 'exports'.
-            globals: ["framework"],  // Array of acceptable global objects added to the window object during tests.
+            globals: ["framework", "require", "define"],  // Array of acceptable global objects added to the window object during tests.
             ignoreLeaks: false,      // Ignore global objects added to the window object.
             timeout: 2000,           // Timeout tests taking longer than 2 seconds.
             slow: 75,                // Mark tests slower than 75 milliseconds as slow.
             bail: false              // Stop on first test failure.
         });
 
-        // Setup Chai - Choose the style of assertions to use.
-        var assert = chai.assert;    // assert style (See http://chaijs.com/api/assert/).
-        // var expect = chai.expect; // expect style (See http://chaijs.com/api/bdd/).
-        // var should = chai.should; // should style (See http://chaijs.com/api/bdd/).
     </script>
 
     <!-- Test Scripts - Your actual test scripts. -->
@@ -53,8 +45,7 @@
     <script>
         if (window.mochaPhantomJS) {    // If using the PhantomJS browser to run Mocha, use that instead.
             mochaPhantomJS.run();
-        }
-        else {                          // Run Mocha
+        } else {
             mocha.run();
         }
     </script>

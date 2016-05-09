@@ -1,6 +1,7 @@
 {
   "userSecretsId": "Boilerplate_vNext-43c574a4-0bab-425a-9df9-feaee3995431",
   "version": "1.0.0-*",
+  "webroot": "wwwroot",
 
   "dependencies": {
     "Boilerplate.Web.Mvc6": "2.0.0-rc1-final-10",
@@ -63,6 +64,11 @@
     "**.vspscc"
   ],
   "scripts": {
-    "prepublish": [ "npm install", "bower install", "gulp build" ]
+    "prepublish": [ "npm install", "bower install", "gulp build" ],
+    "postbuild": "echo after building",
+    "prepack": "echo before packing",
+    "postpack": "echo after packing",
+    "prerestore": "echo before restoring packages",
+    "postrestore": "echo after restoring packages"
   }
 }
